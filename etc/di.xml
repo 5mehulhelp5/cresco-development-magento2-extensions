@@ -4,6 +4,11 @@
     <type name="Magento\Catalog\Api\ProductRepositoryInterface">
         <plugin name="cresco_product_extension_attributes" type="Cresco\Extensions\Plugin\ProductRepositoryPlugin"/>
     </type>
+
+    <!-- Plugin for updating simple product updated_at when added or removed from configurable -->
+    <type name="Magento\ConfigurableProduct\Model\Product\Type\Configurable">
+        <plugin name="cresco_simple_product_update_plugin" type="Cresco\Extensions\Plugin\SimpleProductUpdatePlugin"/>
+    </type>
     
     <!-- Plugin for order management -->
     <type name="Magento\Sales\Model\Order">
