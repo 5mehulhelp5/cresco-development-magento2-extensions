@@ -25,7 +25,7 @@ Choose either a manual or composer (vendor) installation below
 ### 1. Manual Installation (app/code)
 
 ```bash
-cd <magento-root>
+cd <magento-root>/app/code
 
 # create the Cresco folder if it doesn't exist
 mkdir -p Cresco
@@ -47,7 +47,7 @@ bin/magento cache:flush
 
 ### 2. Composer Installation (optional)
 ```bash
-cd <magento-root>/app/code
+cd <magento-root>
 composer require cresco/extensions
 bin/magento module:enable Cresco_Extensions
 bin/magento setup:upgrade
