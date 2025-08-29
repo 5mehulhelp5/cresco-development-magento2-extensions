@@ -1,0 +1,19 @@
+{
+    "name": "cresco/extensions",
+    "description": "Automatically updates product and order updated_at when stock or shipment changes in Magento 2. Includes configurable_product_ids extension attribute to simple products in rest API",
+    "type": "magento2-module",
+    "version": "1.0.0",
+    "license": "MIT",
+    "require": {
+        "php": "^7.4 || ^8.1",
+        "magento/framework": ">=102.0.0"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Cresco\\Extensions\\": ""
+        }
+    }
+}

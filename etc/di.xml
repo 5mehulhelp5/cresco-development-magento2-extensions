@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Plugin for adding extension attributes to products -->
+    <type name="Magento\Catalog\Api\ProductRepositoryInterface">
+        <plugin name="cresco_product_extension_attributes" type="Cresco\Extensions\Plugin\ProductRepositoryPlugin"/>
+    </type>
+    
+    <!-- Plugin for order management -->
+    <type name="Magento\Sales\Model\Order">
+        <plugin name="cresco_order_update_plugin" type="Cresco\Extensions\Plugin\OrderManagementPlugin"/>
+    </type>
+</config>

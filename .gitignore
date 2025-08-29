@@ -1,0 +1,7 @@
+/vendor/
+/node_modules/
+/pub/static/*
+/generated/*
+/var/*
+.DS_Store
+__MACOSX
