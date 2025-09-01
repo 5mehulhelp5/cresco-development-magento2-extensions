@@ -1,8 +1,8 @@
 <?php
 namespace Cresco\Extensions\Plugin;
 
-use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
-use Magento\Catalog\Model\ProductRepository;
+use Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable;
+use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Psr\Log\LoggerInterface;
 
@@ -13,7 +13,7 @@ class SimpleProductUpdatePlugin
     private $logger;
 
     public function __construct(
-        ProductRepository $productRepository,
+        ProductRepositoryInterface $productRepository,
         DateTime $date,
         LoggerInterface $logger
     ) {
@@ -23,36 +23,61 @@ class SimpleProductUpdatePlugin
     }
 
     /**
-     * After saving configurable product children, update updated_at for added or removed simples
+     * Around saveProducts to correctly detect added/removed children.
      */
-    public function afterSave(Configurable $subject, $result, $product, $associatedProductIds = [])
-    {
-        $this->logger->debug("[Cresco_Extensions] SimpleProductUpdatePlugin triggered for configurable product ID: " . $product->getId());
+    public function aroundSaveProducts(
+        Configurable $subject,
+        callable $proceed,
+        $product,
+        $newChildIds = null
+    ) {
+        $parentId = (int)$product->getId();
+        $this->logger->debug("[Cresco_Extensions] aroundSaveProducts called for parent ID: {$parentId}");
+
+        $beforeIds = $this->flatten($subject->getChildrenIds($parentId));
+        $this->logger->debug("[Cresco_Extensions] Before child IDs: " . implode(',', $beforeIds));
+
+        $result = $proceed($product, $newChildIds);
+
+        $afterIds = $this->flatten($subject->getChildrenIds($parentId));
+        $this->logger->debug("[Cresco_Extensions] After child IDs: " . implode(',', $afterIds));
+
+        $added = array_diff($afterIds, $beforeIds);
+        $removed = array_diff($beforeIds, $afterIds);
+
+        $this->logger->debug("[Cresco_Extensions] Added IDs: " . implode(',', $added));
+        $this->logger->debug("[Cresco_Extensions] Removed IDs: " . implode(',', $removed));
+
         $now = $this->date->gmtDate();
 
+        foreach ($added as $childId) {
+            $this->touch($childId, $now, 'added');
+        }
+        foreach ($removed as $childId) {
+            $this->touch($childId, $now, 'removed');
+        }
+
+        return $result;
+    }
+
+    private function flatten($ids): array
+    {
+        $flat = [];
+        array_walk_recursive($ids, function ($v) use (&$flat) {
+            $flat[] = (int)$v;
+        });
+        return array_values(array_unique($flat));
+    }
+
+    private function touch(int $childId, string $now, string $action): void
+    {
         try {
-            $existingChildIds = $subject->getChildrenIds($product->getId())[0] ?? [];
-            $removedIds = array_diff($existingChildIds, $associatedProductIds);
-            $addedIds = array_diff($associatedProductIds, $existingChildIds);
-
-            foreach ($removedIds as $childId) {
-                $childProduct = $this->productRepository->getById($childId);
-                $childProduct->setUpdatedAt($now);
-                $this->productRepository->save($childProduct);
-                $this->logger->debug("[Cresco_Extensions] Updated updated_at for removed simple product ID: $childId");
-            }
-
-            foreach ($addedIds as $childId) {
-                $childProduct = $this->productRepository->getById($childId);
-                $childProduct->setUpdatedAt($now);
-                $this->productRepository->save($childProduct);
-                $this->logger->debug("[Cresco_Extensions] Updated updated_at for added simple product ID: $childId");
-            }
-
-            return $result;
+            $childProduct = $this->productRepository->getById($childId);
+            $childProduct->setUpdatedAt($now);
+            $this->productRepository->save($childProduct);
+            $this->logger->debug("[Cresco_Extensions] Updated updated_at for {$action} simple product ID: {$childId}");
         } catch (\Exception $e) {
-            $this->logger->error('[Cresco_Extensions] Error updating simple products: ' . $e->getMessage());
-            return $result;
+            $this->logger->error("[Cresco_Extensions] Failed to update simple product {$childId}: " . $e->getMessage());
         }
     }
 }

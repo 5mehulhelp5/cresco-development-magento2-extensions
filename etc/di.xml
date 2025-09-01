@@ -6,7 +6,7 @@
     </type>
 
     <!-- Plugin for updating simple product updated_at when added or removed from configurable -->
-    <type name="Magento\ConfigurableProduct\Model\Product\Type\Configurable">
+    <type name="Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable">
         <plugin name="cresco_simple_product_update_plugin" type="Cresco\Extensions\Plugin\SimpleProductUpdatePlugin"/>
     </type>
     
