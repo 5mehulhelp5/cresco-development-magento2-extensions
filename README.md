@@ -20,7 +20,7 @@ The inclusion of `configurable_product_ids` and updating of simple products when
 
 ## Installation
 
-Choose either a manual or composer (vendor) installation below
+Install using the steps below. Composer installation TBD. 
 
 ### 1. Manual Installation (app/code)
 
@@ -31,24 +31,22 @@ cd <magento-root>/app/code
 mkdir -p Cresco
 cd Cresco
 
-# clone the repo directly into 'Extensions'
-git clone https://github.com/<username>/magento2-extensions.git Extensions
-
-# verify folder structure
+# download the repository's zip file
+wget https://github.com/cresco-development/magento2-extensions/archive/refs/heads/master.zip
+unzip master.zip -d .
+rm master.zip
+mv magento2-extensions-master Extensions
 ls Extensions
 # should show registration.php, etc/, Plugin/, Observer/, composer.json
 
-# enable the module
-bin/magento module:enable Cresco_Extensions
-bin/magento setup:upgrade
-bin/magento setup:di:compile
-bin/magento cache:flush
-```
-
-### 2. Composer Installation (optional)
-```bash
 cd <magento-root>
-composer require cresco/extensions
+
+# Ensure permissions are correct, you may or may not need to run these
+sudo chown -R <web-user>:<web-group> app/code/Cresco/Extensions
+find app/code/Cresco/Extensions -type f -exec chmod 644 {} \;  # files
+find app/code/Cresco/Extensions -type d -exec chmod 755 {} \;  # directories
+
+# enable the module
 bin/magento module:enable Cresco_Extensions
 bin/magento setup:upgrade
 bin/magento setup:di:compile
