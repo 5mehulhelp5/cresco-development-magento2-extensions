@@ -16,7 +16,6 @@ The inclusion of `configurable_product_ids` and updating of simple products when
 
 - Magento 2.2+
 - PHP 7.4+ (depending on your Magento version)
-- Composer (optional, for Composer installation)
 
 ## Installation
 
